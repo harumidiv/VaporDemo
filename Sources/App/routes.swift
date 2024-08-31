@@ -32,4 +32,6 @@ func routes(_ app: Application) throws {
       body: .init(buffer: image)
     )
   }
+
+  try app.register(collection: MyController())
 }
