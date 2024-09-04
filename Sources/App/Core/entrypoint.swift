@@ -2,6 +2,7 @@ import Vapor
 import Logging
 import NIOCore
 import NIOPosix
+import OpenAPIVapor
 
 @main
 enum Entrypoint {
@@ -17,6 +18,13 @@ enum Entrypoint {
     // If enabled, you should be careful about calling async functions before this point as it can cause assertion failures.
     // let executorTakeoverSuccess = NIOSingletons.unsafeTryInstallSingletonPosixEventLoopGroupAsConcurrencyGlobalExecutor()
     // app.logger.debug("Tried to install SwiftNIO's EventLoopGroup as Swift's global concurrency executor", metadata: ["success": .stringConvertible(executorTakeoverSuccess)])
+
+    let requestInjectionMiddleware = OpenAPIRequestInjectionMiddleware()
+    let transport = VaporTransport(routesBuilder: app.grouped(requestInjectionMiddleware))
+    let handler = OpenAPIController()
+    try handler.registerHandlers(on: transport, serverURL: Servers.server1())
+
+    app.get("openapi") { $0.redirect(to: "/openapi.html", redirectType: .permanent) }
 
     do {
       try await configure(app)

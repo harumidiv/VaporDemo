@@ -1,0 +1,52 @@
+openapi: '3.1.0'
+info:
+  title: VaporDemo
+  version: 1.0.0
+servers:
+  - url: http://localhost/openapi
+    description: Example service deployment.
+paths:
+  /json:
+    get:
+      operationId: getJSON
+      responses:
+        '200':
+          description: A JSON.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelloVapor'
+  /cat:
+    get:
+      operationId: getCat
+      responses:
+        '200':
+          description: A Cat image.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+  /catWithChunks:
+    get:
+      operationId: getCatWithChunks
+      responses:
+        '200':
+          description: A Cat image.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas:
+    HelloVapor:
+      type: object
+      properties:
+        message:
+          type: string
+        status:
+          type: string
+      required:
+        - message
+        - status
