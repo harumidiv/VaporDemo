@@ -41,6 +41,10 @@ RUN cp "/usr/libexec/swift/linux/swift-backtrace-static" ./
 # Copy resources bundled by SPM to staging area
 RUN find -L "$(swift build --package-path /build -c release --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
 
+# Remove the symbolic link and copy the target file as a regular file.
+RUN rm -f /build/Public/openapi.yaml \
+    && cp /build/Sources/App/openapi.yaml /build/Public/openapi.yaml
+
 # Copy any resources from the public directory and views directory if the directories exist
 # Ensure that by default, neither the directory nor any of its contents are writable.
 RUN [ -d /build/Public ] && { mv /build/Public ./Public && chmod -R a-w ./Public; } || true
@@ -59,10 +63,7 @@ RUN export DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
       libjemalloc2 \
       ca-certificates \
       tzdata \
-# If your app or its dependencies import FoundationNetworking, also install `libcurl4`.
-      # libcurl4 \
-# If your app or its dependencies import FoundationXML, also install `libxml2`.
-      # libxml2 \
+      libcurl4 \
     && rm -r /var/lib/apt/lists/*
 
 # Create a vapor user and group with /app as its home directory
