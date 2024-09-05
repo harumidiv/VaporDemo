@@ -75,4 +75,101 @@ struct OpenAPIController: APIProtocol {
       )
     )
   }
+
+  func getAllUsers(
+    _ input: Operations.getAllUsers.Input
+  ) async throws -> Operations.getAllUsers.Output {
+    try await .ok(
+      .init(
+        body: .json(
+          User.query(on: request.db)
+            .all()
+            .map {
+              try .init(
+                id: $0.requireID(),
+                username: $0.name,
+                email: $0.email
+              )
+            }
+        )
+      )
+    )
+  }
+
+  func createUser(
+    _ input: Operations.createUser.Input
+  ) async throws -> Operations.createUser.Output {
+    switch input.body {
+    case let .json(payload):
+      let user = User(name: payload.username, email: payload.email)
+      try await user.save(on: request.db)
+
+      return try .created(
+        .init(
+          body: .json(
+            .init(
+              id: user.requireID(),
+              username: user.name,
+              email: user.email
+            )
+          )
+        )
+      )
+    }
+  }
+
+  func getUserById(
+    _ input: Operations.getUserById.Input
+  ) async throws -> Operations.getUserById.Output {
+    guard let user = try await User.find(input.path.id, on: request.db) else {
+      throw Abort(.notFound, reason: "user.id: \(input.path.id) not found.")
+    }
+    return .ok(
+      .init(
+        body: .json(
+          .init(
+            id: input.path.id,
+            username: user.name,
+            email: user.email
+          )
+        )
+      )
+    )
+  }
+
+  func updateUserById(
+    _ input: Operations.updateUserById.Input
+  ) async throws -> Operations.updateUserById.Output {
+    guard let user = try await User.find(input.path.id, on: request.db) else {
+      throw Abort(.notFound, reason: "user.id: \(input.path.id) not found.")
+    }
+    switch input.body {
+    case let .json(payload):
+      user.name = payload.username
+      user.email = payload.email
+      try await user.save(on: request.db)
+      return .ok(
+        .init(
+          body: .json(
+            .init(
+              id: input.path.id,
+              username: user.name,
+              email: user.email
+            )
+          )
+        )
+      )
+    }
+  }
+
+  func deleteUserById(
+    _ input: Operations.deleteUserById.Input
+  ) async throws -> Operations.deleteUserById.Output {
+    guard let user = try await User.find(input.path.id, on: request.db) else {
+      throw Abort(.notFound, reason: "user.id: \(input.path.id) not found.")
+    }
+    try await user.delete(on: request.db)
+
+    return .noContent(.init())
+  }
 }

@@ -1,3 +1,5 @@
+import Fluent
+import FluentPostgresDriver
 import Vapor
 import Logging
 import NIOCore
@@ -44,12 +46,33 @@ private extension Entrypoint {
     // If enabled, you should be careful about calling async functions before this point as it can cause assertion failures.
     // let executorTakeoverSuccess = NIOSingletons.unsafeTryInstallSingletonPosixEventLoopGroupAsConcurrencyGlobalExecutor()
     // app.logger.debug("Tried to install SwiftNIO's EventLoopGroup as Swift's global concurrency executor", metadata: ["success": .stringConvertible(executorTakeoverSuccess)])
+
+    // OpenAPI
     let requestInjectionMiddleware = OpenAPIRequestInjectionMiddleware()
     let transport = VaporTransport(routesBuilder: app.grouped(requestInjectionMiddleware))
     let handler = OpenAPIController()
     try handler.registerHandlers(on: transport, serverURL: Servers.server1())
-
     app.get("openapi") { $0.redirect(to: "/openapi.html", redirectType: .permanent) }
+
+    // Database
+    let config = try SQLPostgresConfiguration(
+      hostname: Environment.databaseHost(),
+      port: Environment.databasePort(),
+      username: Environment.databaseUsername(),
+      password: Environment.databasePassword(),
+      database: Environment.databaseName(),
+      tls: .disable
+    )
+
+    app.logger.info("SQLPostgresConfiguration: \(config)")
+
+    app.databases.use(
+      .postgres(configuration: config),
+      as: .psql
+    )
+
+    app.migrations.add(CreateUser())
+    try await app.autoMigrate()
   }
 }
 

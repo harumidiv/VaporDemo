@@ -18,7 +18,11 @@ let package = Package(
         .package(url: "https://github.com/swift-server/swift-openapi-vapor", from: "1.0.1"),
 
         // DI
-        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.3.9")
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.3.9"),
+
+        // Database
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.11.0"),
+        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.9.2")
     ],
     targets: [
         .executableTarget(
@@ -35,6 +39,10 @@ let package = Package(
 
                 // DI
                 .product(name: "Dependencies", package: "swift-dependencies"),
+
+                // Database
+                .product(name: "Fluent", package: "fluent"),
+                .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             ],
             swiftSettings: swiftSettings, 
             plugins: [

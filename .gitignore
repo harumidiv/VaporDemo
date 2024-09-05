@@ -135,6 +135,7 @@ iOSInjectionProject/
 
 ### Vapor ###
 Config/secrets
+.env
 
 ### Vapor Patch ###
 Packages
