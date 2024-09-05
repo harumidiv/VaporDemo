@@ -1,4 +1,5 @@
 import Dependencies
+import NIOFileSystem
 import OpenAPIRuntime
 import OpenAPIVapor
 import Vapor
@@ -49,8 +50,8 @@ struct OpenAPIController: APIProtocol {
   ) async throws -> Operations.getCatWithChunks.Output {
     let filePath = request.application.directory.publicDirectory.appending("cat.jpg")
 
-    let length: HTTPBody.Length = switch try FileManager.default.attributesOfItem(atPath: filePath)[.size] {
-    case let size as Int64:
+    let length: HTTPBody.Length = switch try await FileSystem.shared.info(forFileAt: .init(filePath))?.size {
+    case let size?:
         .known(size) // content-length
     default:
         .unknown
