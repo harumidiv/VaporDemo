@@ -6,6 +6,7 @@ struct MyController: RouteCollection {
     let myRoutes = routes.grouped("my")
     myRoutes.get("json", use: getJSON)
     myRoutes.get("cat", use: getCat)
+    myRoutes.get("catWithStream", use: getCatWithStream)
     myRoutes.get("notfound", use: notFound)
   }
 
@@ -32,6 +33,13 @@ struct MyController: RouteCollection {
       status: .ok,
       headers: headers,
       body: .init(buffer: image)
+    )
+  }
+
+  @Sendable
+  func getCatWithStream(request: Request) async throws -> Response {
+    try await request.fileio.asyncStreamFile(
+      at: request.application.directory.publicDirectory.appending("cat.jpg")
     )
   }
 
