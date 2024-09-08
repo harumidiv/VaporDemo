@@ -22,7 +22,10 @@ let package = Package(
 
         // Database
         .package(url: "https://github.com/vapor/fluent.git", from: "4.11.0"),
-        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.9.2")
+        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.9.2"),
+
+        // Analytics
+        .package(url: "https://github.com/DataDog/swift-dogstatsd.git", from: "1.0.1"),
     ],
     targets: [
         .executableTarget(
@@ -43,6 +46,9 @@ let package = Package(
                 // Database
                 .product(name: "Fluent", package: "fluent"),
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
+
+                // Analytics
+                .product(name: "Dogstatsd", package: "swift-dogstatsd"),
             ],
             swiftSettings: swiftSettings, 
             plugins: [

@@ -1,3 +1,4 @@
+import Dogstatsd
 import Fluent
 import FluentPostgresDriver
 import Vapor
@@ -92,6 +93,11 @@ private extension Entrypoint {
     } catch {
       app.logger.error("app.autoMigrate failed. error: \(String(reflecting: error))")
     }
+
+    app.dogstatsd.config = .udp(
+      address: "localhost",
+      port: 8125
+    )
   }
 }
 
@@ -99,7 +105,8 @@ private extension Entrypoint {
 
   static func routes(_ app: Application) throws {
     app.get { req async in
-      "It works!"
+      req.dogstatsd.increment("test.metric")
+      return "It works!"
     }
 
     app.get("hello") { req async -> String in

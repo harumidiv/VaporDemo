@@ -1,5 +1,5 @@
 {
-  "originHash" : "bdec4b447fd28108eed5194826dedfc3a86f947770ea87000fe930e48098096c",
+  "originHash" : "8fa39b54ec00844aeb4ab663690c7425111e0e14d3decd55c8041ba3fee80639",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -197,6 +197,15 @@
       "state" : {
         "revision" : "3ef38bb702a1a2f39c7e19fc0578403b8ee52b17",
         "version" : "1.3.9"
+      }
+    },
+    {
+      "identity" : "swift-dogstatsd",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/DataDog/swift-dogstatsd.git",
+      "state" : {
+        "revision" : "c607dee5026d3e07862c8f72140c39deb0689ce6",
+        "version" : "1.0.1"
       }
     },
     {
