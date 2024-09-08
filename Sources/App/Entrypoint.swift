@@ -139,5 +139,13 @@ private extension Entrypoint {
 
     try app.register(collection: MyController())
     try app.register(collection: HTTPBinController())
+
+    // Auth
+    do {
+      let protected = app.grouped(UserAuthenticator())
+      protected.get("basic_auth") { req -> String in
+        try req.auth.require(AuthUser.self).name
+      }
+    }
   }
 }
