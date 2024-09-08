@@ -2,6 +2,10 @@ import Vapor
 
 extension Environment {
 
+  static func databaseSocketPath() throws -> String? {
+    try? value(for: "DATABASE_SOCKET_PATH")
+  }
+
   static func databaseHost() throws -> String {
     try value(for: "DATABASE_HOST")
   }
@@ -11,15 +15,15 @@ extension Environment {
   }
 
   static func databaseUsername() throws -> String {
-    try value(for: "DATABASE_USERNAME")
+    try value(for: "POSTGRES_USER")
   }
 
   static func databasePassword() throws -> String {
-    try value(for: "DATABASE_PASSWORD")
+    try value(for: "POSTGRES_PASSWORD")
   }
 
   static func databaseName() throws -> String {
-    try value(for: "DATABASE_NAME")
+    try value(for: "POSTGRES_DB")
   }
 }
 

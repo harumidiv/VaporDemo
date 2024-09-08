@@ -1,0 +1,24 @@
+steps:
+  # Build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build', '-t',
+      'asia-northeast1-docker.pkg.dev/$PROJECT_ID/server-side-swift/vapor-demo:latest',
+      '.'
+    ]
+    env:
+      - PGDATA=${_PGDATA}
+      - POSTGRES_USER=${_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${_POSTGRES_DB}
+      - DATABASE_HOST=${_DATABASE_HOST}
+      - DATABASE_PORT=${_DATABASE_PORT}
+      # - DATABASE_SOCKET_PATH=${_DATABASE_SOCKET_PATH}
+  # Push Docker Image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/server-side-swift/vapor-demo:latest'
+    ]
+
+images:
+  - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/server-side-swift/vapor-demo:latest'

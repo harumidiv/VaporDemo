@@ -22,6 +22,9 @@ x-shared_environment: &shared_environment
 services:
   app:
     image: vapor-demo:latest
+    # volumes:
+    #  # Unix socket
+    #  - ${DATABASE_SOCKET_PATH}:/var/run/postgresql
     build:
       context: .
     env_file:
@@ -39,6 +42,8 @@ services:
     image: postgres:16-alpine
     volumes:
       - db_data:${PGDATA}
+      # Unix socket
+      # - ${DATABASE_SOCKET_PATH}:/var/run/postgresql
     env_file:
       - .env
     ports:

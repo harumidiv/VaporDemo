@@ -55,24 +55,43 @@ private extension Entrypoint {
     app.get("openapi") { $0.redirect(to: "/openapi.html", redirectType: .permanent) }
 
     // Database
-    let config = try SQLPostgresConfiguration(
-      hostname: Environment.databaseHost(),
-      port: Environment.databasePort(),
-      username: Environment.databaseUsername(),
-      password: Environment.databasePassword(),
-      database: Environment.databaseName(),
-      tls: .disable
-    )
+    let config = if let databaseSocketPath = try Environment.databaseSocketPath() {
+      try SQLPostgresConfiguration(
+        unixDomainSocketPath: databaseSocketPath,
+        username: Environment.databaseUsername(),
+        password: Environment.databasePassword(),
+        database: Environment.databaseName()
+      )
+    } else {
+      try SQLPostgresConfiguration(
+        hostname: Environment.databaseHost(),
+        port: Environment.databasePort(),
+        username: Environment.databaseUsername(),
+        password: Environment.databasePassword(),
+        database: Environment.databaseName(),
+        tls: .disable
+      )
+    }
 
     app.logger.info("SQLPostgresConfiguration: \(config)")
 
     app.databases.use(
-      .postgres(configuration: config),
+      .postgres(
+        configuration: config,
+        connectionPoolTimeout: .seconds(120)
+      ),
       as: .psql
     )
 
     app.migrations.add(CreateUser())
-    try await app.autoMigrate()
+
+    do {
+      try await app.autoMigrate()
+    } catch let error as PSQLError {
+      app.logger.error("app.autoMigrate failed. error: \(String(reflecting: error)), error.underlying: \(String(describing: error.underlying))")
+    } catch {
+      app.logger.error("app.autoMigrate failed. error: \(String(reflecting: error))")
+    }
   }
 }
 
