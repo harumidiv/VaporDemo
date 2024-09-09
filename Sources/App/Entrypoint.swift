@@ -1,11 +1,12 @@
 import Dogstatsd
 import Fluent
 import FluentPostgresDriver
-import Vapor
+import JWTKit
 import Logging
 import NIOCore
 import NIOPosix
 import OpenAPIVapor
+import Vapor
 
 @main
 enum Entrypoint {
@@ -39,7 +40,7 @@ private extension Entrypoint {
     )
 
     // register routes
-    try routes(app)
+    try await routes(app)
 
     // This attempts to install NIO as the Swift Concurrency global executor.
     // You can enable it if you'd like to reduce the amount of context switching between NIO and Swift Concurrency.
@@ -103,7 +104,7 @@ private extension Entrypoint {
 
 private extension Entrypoint {
 
-  static func routes(_ app: Application) throws {
+  static func routes(_ app: Application) async throws {
     app.get { req async in
       req.dogstatsd.increment("test.metric")
       return "It works!"
@@ -145,6 +146,30 @@ private extension Entrypoint {
       let protected = app.grouped(UserAuthenticator())
       protected.get("basic_auth") { req -> String in
         try req.auth.require(AuthUser.self).name
+      }
+    }
+    do {
+      let domain = try Environment.auth0Domain()
+      let jwksURL = "https://\(domain)/.well-known/jwks.json"
+      let keys = JWTKeyCollection()
+      let jwksResponse = try await app.client.get(URI(string: jwksURL))
+      guard let jwksData = jwksResponse.body else {
+        throw Abort(.internalServerError, reason: "Failed to load JWKS data")
+      }
+      let jwks = try JSONDecoder().decode(JWKS.self, from: jwksData)
+      try await keys.add(jwks: jwks)
+
+      app.get("bearer_auth") { req async throws -> String in
+        guard let token = req.headers.bearerAuthorization?.token else {
+          throw Abort(.unauthorized, reason: "No token provided")
+        }
+        do {
+          let jwt = try await keys.verify(token, as: Auth0JWT.self)
+          return "Hello, \(jwt.sub.value)"
+        } catch {
+          app.logger.error("No token provided. error: \(String(reflecting: error))")
+          throw Abort(.unauthorized, reason: "No token provided. error: \(String(reflecting: error))")
+        }
       }
     }
   }

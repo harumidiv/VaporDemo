@@ -12,6 +12,9 @@ let package = Package(
         // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
 
+        // Auth
+        .package(url: "https://github.com/vapor/jwt-kit.git", from: "5.0.0-rc.2"),
+
         // OpenAPI
         .package(url: "https://github.com/apple/swift-openapi-generator", from: "1.3.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", from: "1.5.0"),
@@ -35,6 +38,9 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
+
+                // Auth
+                .product(name: "JWTKit", package: "jwt-kit"),
 
                 // OpenAPI
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),

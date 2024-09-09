@@ -27,6 +27,13 @@ extension Environment {
   }
 }
 
+extension Environment {
+
+  static func auth0Domain() throws -> String {
+    try value(for: "AUTH0_DOMAIN")
+  }
+}
+
 private extension Environment {
 
   static func value<T>(
