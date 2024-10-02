@@ -29,8 +29,8 @@ extension Environment {
 
 extension Environment {
 
-  static func auth0Domain() throws -> String {
-    try value(for: "AUTH0_DOMAIN")
+  static func auth0Domain() -> String? {
+    try? value(for: "AUTH0_DOMAIN")
   }
 }
 

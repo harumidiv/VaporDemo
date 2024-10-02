@@ -148,8 +148,8 @@ private extension Entrypoint {
         try req.auth.require(AuthUser.self).name
       }
     }
-    do {
-      let domain = try Environment.auth0Domain()
+
+    if let domain = Environment.auth0Domain() {
       let jwksURL = "https://\(domain)/.well-known/jwks.json"
       let keys = JWTKeyCollection()
       let jwksResponse = try await app.client.get(URI(string: jwksURL))
